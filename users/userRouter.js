@@ -1,4 +1,3 @@
-// const express = 'express';
 const db = require('./userDb');
 const router = require('express').Router();
 
@@ -6,7 +5,7 @@ router.post('/', async (req, res) => {
     try {
         const users = await db.insert(req.body);
         if (users) {
-            res.status(200).json({ message: 'User added!' });
+            res.status(201).json({ message: 'User added!' });
         } else {
             res.status(400).json({ message: 'missing required content' });
         }
@@ -14,9 +13,6 @@ router.post('/', async (req, res) => {
         console.log(error);
         res.status(500).json({ message: 'There was an error adding the user' });
     }
-});
-
-router.post('/:id/posts', async (req, res) => {
 });
 
 router.get('/', async (req, res) => {
@@ -58,11 +54,33 @@ router.get('/:id/posts', async (req, res) => {
 });
 
 router.delete('/:id', async (req, res) => {
-
+    try {
+        const count = await db.remove(req.params.id);
+        if (count > 0) {
+            res.status(200).json({ message: 'User was deleted' });
+        } else {
+            res.status(404).json({ message: 'User could not be found' });
+        }
+    } catch (error) {
+        console.log(error);
+        res.status(500).json({ message: 'There was an error trying to delete user' });
+    }
 });
 
 router.put('/:id', async (req, res) => {
-
+    try {
+        const users = await db.update(req.params.id, req.body);
+        if (!req.params.id) {
+            res.status(404).json({ message: 'User could not be found' });
+        } if (users) {
+            res.status(201).json({message: 'User was updated' });
+        } else {
+            res.status(400).json({ message: 'Fill in required content' });
+        }
+    } catch (error) {
+        console.log(error);
+        res.status(500).json({ message: 'There was an error trying to update user' });
+    }
 });
 
 //custom middleware
